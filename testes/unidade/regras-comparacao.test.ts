@@ -1,5 +1,12 @@
 // Compara o porte em TypeScript (src/lib/dominio/regras.ts) com o código do app antigo em milhares de cenários
-// sorteados com semente fixa. Qualquer diferença fora da mudança aprovada (RIR em branco) derruba o teste.
+// sorteados com semente fixa. Qualquer diferença fora das mudanças aprovadas derruba o teste.
+//
+// Mudanças aprovadas, tratadas aqui uma a uma:
+// - RIR em branco não sobe composto (teste próprio).
+// - Falha vale quando rirSubir = 0: o app antigo não tinha esse modo, então a comparação usa rirSubir de 1 para cima.
+// - Aumento soma o passo em vez de arredondar para múltiplos dele: quando os dois dão cargas diferentes, a carga e
+//   o texto ficam fora da comparação e a carga nova é conferida à parte.
+// - Dois textos reescritos: comparados depois de trocar a frase antiga pela nova.
 
 import { describe, expect, it } from "vitest";
 import { Rec as Antigo } from "../referencia/recomendacao-legado";
@@ -45,9 +52,10 @@ const dia = (base: string, n: number) => {
 };
 
 function regras(s: S): RegrasCompletas {
-  const cfg = { ...Novo.PADRAO };
+  const cfg = { ...Novo.PADRAO, rirSubir: 1 };
   if (s.chance(0.4)) return cfg;
   for (const c of Novo.CAMPOS) if (s.chance(0.35)) cfg[c.k] = c.min + Math.round((s.prox() * (c.max - c.min)) / c.passo) * c.passo;
+  cfg.rirSubir = Math.max(1, cfg.rirSubir);
   return cfg;
 }
 
@@ -117,11 +125,40 @@ function casoDoRirEmBranco(ses: SessaoRegras[], exId: string, cat: Cat, reps: st
   const ult = Novo.historico(exId, ses)[0]?.e.series;
   if (!r || !ult || cat !== "comp") return false;
   return (
-    !Novo.abaixoDaFaixa(ult, r) &&
+    !Novo.abaixoDaFaixa(ult, r, cfg) &&
     Novo.noTopo(ult, r) &&
     ult.some((x) => x.rir === null) &&
     !ult.some((x) => x.rir !== null && x.rir < cfg.rirSubir)
   );
+}
+
+type Sugestao = ReturnType<typeof Novo.sugerirForca>;
+/** Leva os dois textos reescritos para uma forma comum, para comparar o resto da frase. */
+const textoComum = (m: string) => m.replace("Passou de", "Bateu").replace("Abaixo da faixa ou sem sobra (RIR 0)", "Abaixo da faixa");
+
+/** Carga que o app novo sugere ao subir, quando ela difere da do app antigo (carga fora dos múltiplos do passo). */
+function aumentoDiferente(ses: SessaoRegras[], exId: string, cat: Cat, equip: string, cfg: RegrasCompletas): number | null {
+  const ult = Novo.historico(exId, ses)[0]?.e.series;
+  if (!ult) return null;
+  const top = Math.max(...ult.map((x) => x.kg || 0));
+  const inc = Novo.incrementoFinal(cat, equip, top, cfg);
+  if (!(top > 0) || !(inc > 0)) return null;
+  const novo = Math.round((top + inc) * 100) / 100;
+  return Novo.arredondar(top + inc, inc) === novo ? null : novo;
+}
+
+/** Compara as duas sugestões. Devolve true quando caiu na mudança do arredondamento. */
+function conferir(novo: Sugestao, antigo: Sugestao, cargaNova: number | null, rotulo: string) {
+  const esperado = { ...antigo, motivo: textoComum(antigo.motivo) };
+  novo = { ...novo, motivo: textoComum(novo.motivo) };
+  const envolveAumento = antigo.tipo === "subir" || antigo.tipo === "deload" || antigo.motivo.includes("subiria para");
+  if (cargaNova === null || !envolveAumento) {
+    expect(novo, rotulo).toEqual(esperado);
+    return false;
+  }
+  expect({ ...novo, kg: null, motivo: "" }, rotulo).toEqual({ ...esperado, kg: null, motivo: "" });
+  if (novo.tipo === "subir") expect(novo.kg, rotulo).toBe(cargaNova);
+  return true;
 }
 
 describe("porte em TypeScript x app antigo", () => {
@@ -148,6 +185,7 @@ describe("porte em TypeScript x app antigo", () => {
 
   it("dá a mesma sugestão de carga em 4.000 históricos (com todos os RIR anotados)", () => {
     let comparadas = 0;
+    let arredondou = 0;
     const tipos = new Set<string>();
     for (let semente = 1; semente <= 4000; semente++) {
       const s = sorteio(semente * 7 + 3);
@@ -163,13 +201,16 @@ describe("porte em TypeScript x app antigo", () => {
         const novo = Novo.sugerirForca({ item, info, sessoes: ses, prontidao: p, cfg, deload });
         // @ts-expect-error o código antigo aceita cat vazio, mas o tipo dele não declara
         const antigo = Antigo.sugerirForca({ item, info, sessoes: ses, prontidao: p, cfg, deload });
-        expect(novo, `semente ${semente}, ${e.id}, reps "${item.reps}"`).toEqual(antigo);
+        const cargaNova = aumentoDiferente(ses, e.id, item.cat || e.cat, e.equip, cfg);
+        if (conferir(novo, antigo, cargaNova, `semente ${semente}, ${e.id}, reps "${item.reps}"`)) arredondou++;
         comparadas++;
         tipos.add(novo.tipo);
       }
       expect(JSON.stringify(ses), `semente ${semente}: o histórico não pode ser alterado`).toBe(antes);
     }
     expect(comparadas).toBe(40000);
+    expect(arredondou).toBeGreaterThan(100);
+    expect(arredondou).toBeLessThan(4000);
     // O sorteio precisa passar por todos os caminhos da regra, senão a comparação não prova nada.
     expect([...tipos].sort()).toEqual(["alternativa", "deload", "dor", "manter", "primeira", "reduzir", "subir"]);
   }, 120_000);
@@ -190,7 +231,7 @@ describe("porte em TypeScript x app antigo", () => {
         const antigo = Antigo.sugerirForca({ item, info, sessoes: ses, prontidao: p, cfg, deload });
         const rotulo = `semente ${semente}, ${e.id}, reps "${item.reps}"`;
         if (!casoDoRirEmBranco(ses, e.id, e.cat, item.reps, cfg)) {
-          expect(novo, rotulo).toEqual(antigo);
+          conferir(novo, antigo, aumentoDiferente(ses, e.id, e.cat, e.equip, cfg), rotulo);
           iguais++;
           continue;
         }
@@ -207,8 +248,10 @@ describe("porte em TypeScript x app antigo", () => {
   }, 120_000);
 
   it("tem as mesmas regras padrão e os mesmos campos de Ajustes", () => {
-    expect(Novo.PADRAO).toEqual(Antigo.PADRAO);
-    expect(Novo.CAMPOS).toEqual(Antigo.CAMPOS);
+    // Únicas diferenças: o padrão de rirSubir (0, falha vale) e o rótulo que explica isso.
+    expect({ ...Novo.PADRAO, rirSubir: 1 }).toEqual(Antigo.PADRAO);
+    expect(Novo.PADRAO.rirSubir).toBe(0);
+    expect(Novo.CAMPOS.map((c) => ({ ...c, rot: c.rot.replace(" (0 = falha vale)", "") }))).toEqual(Antigo.CAMPOS);
   });
 
   it("calcula faixa, incremento e 1RM igual", () => {

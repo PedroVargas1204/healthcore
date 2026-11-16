@@ -2,7 +2,12 @@
 // Porte para TypeScript do recomendacao.js do app antigo. Funções puras: recebem dados e regras e devolvem a
 // sugestão com o motivo. testes/unidade/regras-comparacao.test.ts compara cada saída com o código antigo.
 //
-// Única mudança de comportamento (aprovada): série com RIR em branco não libera aumento de carga em composto.
+// Mudanças de comportamento em relação ao app antigo, todas aprovadas:
+// 1. Série com RIR em branco não libera aumento de carga em composto.
+// 2. Falha vale: com rirSubir = 0 (o padrão), a progressão é só por repetições. RIR 0 não segura o aumento,
+//    não conta como "abaixo da faixa" e não deixa a prontidão amarela. Com rirSubir de 1 para cima vale a regra antiga.
+// 3. O aumento soma o passo à carga atual (19 kg + 2 = 21), em vez de arredondar para múltiplos do passo (22).
+// 4. Textos: isolado "bateu" (não "passou de") o topo; a redução diz quando o motivo foi RIR 0.
 
 import { LATERAIS } from "./catalogo";
 
@@ -75,7 +80,7 @@ export const PADRAO = {
   rir0Frequente: 50,
   energiaBaixa: 2,
   dorMuscVermelho: 4,
-  rirSubir: 1,
+  rirSubir: 0,
   isoSessoesTopo: 2,
   vezesAbaixo: 2,
   reducaoAbaixo: 5,
@@ -117,7 +122,7 @@ export const CAMPOS: CampoRegra[] = [
   { g: "Prontidão: relatos", k: "rir0Frequente", rot: "RIR 0 frequente: séries com RIR 0 a partir de", un: "%", min: 10, max: 100, passo: 5 },
   { g: "Prontidão: relatos", k: "energiaBaixa", rot: "Energia baixa: até", un: "/5", min: 1, max: 4, passo: 1 },
   { g: "Prontidão: relatos", k: "dorMuscVermelho", rot: "Vermelho: dor muscular a partir de", un: "/5", min: 2, max: 5, passo: 1 },
-  { g: "Progressão", k: "rirSubir", rot: "Composto: RIR mínimo para subir carga", un: "", min: 0, max: 4, passo: 1 },
+  { g: "Progressão", k: "rirSubir", rot: "Composto: RIR mínimo para subir carga (0 = falha vale)", un: "", min: 0, max: 4, passo: 1 },
   { g: "Progressão", k: "isoSessoesTopo", rot: "Isolado: sessões no topo da faixa para subir", un: "", min: 1, max: 5, passo: 1 },
   { g: "Progressão", k: "vezesAbaixo", rot: "Abaixo da faixa: vezes seguidas para reduzir", un: "", min: 1, max: 5, passo: 1 },
   { g: "Progressão", k: "reducaoAbaixo", rot: "Redução quando fica abaixo da faixa", un: "%", min: 0, max: 20, passo: 0.5 },
@@ -213,6 +218,10 @@ function fracaoRir0(s: SessaoRegras) {
   return sets.filter((x) => x.rir === 0).length / sets.length;
 }
 
+/** Com rirSubir em 0 a pessoa treina até a falha de propósito: RIR 0 deixa de ser sinal de cansaço. */
+const falhaVale = (cfg: RegrasCompletas) => cfg.rirSubir <= 0;
+const centesimos = (kg: number) => Math.round(kg * 100) / 100;
+
 export function prontidao({ sono, sessoes, cfg, hoje }: { sono: SonoRegras; sessoes: SessaoRegras[]; cfg: RegrasCompletas; hoje: string }): Prontidao {
   const noites: number[] = [];
   for (let i = 0; i < 7; i++) {
@@ -237,7 +246,7 @@ export function prontidao({ sono, sessoes, cfg, hoje }: { sono: SonoRegras; sess
   if (med != null && noites.length >= 3 && med < cfg.sonoVerdeMedia) return amarelo(`Média de sono ${fmt(med)} h: mantendo as cargas.`);
   if (ontem != null && ontem < cfg.sonoAmareloNoite) return amarelo(`Dormiu ${fmt(ontem)} h esta noite: mantendo as cargas.`);
   if (ontem != null && ontem < cfg.sonoVerdeNoite) return amarelo(`Noite de ${fmt(ontem)} h, abaixo de ${fmt(cfg.sonoVerdeNoite)} h: mantendo as cargas.`);
-  if (forca.length >= cfg.sessoesRelato && forca.every((s) => fracaoRir0(s) * 100 >= cfg.rir0Frequente)) return amarelo("RIR 0 frequente nos últimos treinos: mantendo as cargas.");
+  if (!falhaVale(cfg) && forca.length >= cfg.sessoesRelato && forca.every((s) => fracaoRir0(s) * 100 >= cfg.rir0Frequente)) return amarelo("RIR 0 frequente nos últimos treinos: mantendo as cargas.");
   if (forca.length >= cfg.sessoesRelato && forca.every((s) => ehNumero(s.energia) && s.energia <= cfg.energiaBaixa)) return amarelo("Energia baixa nos últimos treinos: mantendo as cargas.");
 
   if (med == null && ontem == null) return { nivel: "verde", semSono: true, motivo: "Sem sono registrado: progressão normal pelos treinos. Lance a noite para ajustar.", ...base };
@@ -264,8 +273,10 @@ export function historico(exId: string, sessoes: SessaoRegras[]): Passagem[] {
   return h;
 }
 
-/** Abaixo da faixa: alguma série com menos reps que o mínimo, ou RIR 0 antes da última série. */
-export const abaixoDaFaixa = (series: SerieRegras[], r: Faixa) => series.some((x) => x.reps < r.min) || series.slice(0, -1).some((x) => x.rir === 0);
+const faltouReps = (series: SerieRegras[], r: Faixa) => series.some((x) => x.reps < r.min);
+const rir0Cedo = (series: SerieRegras[]) => series.slice(0, -1).some((x) => x.rir === 0);
+/** Abaixo da faixa: alguma série com menos reps que o mínimo ou, quando a falha não vale, RIR 0 antes da última série. */
+export const abaixoDaFaixa = (series: SerieRegras[], r: Faixa, cfg: RegrasCompletas) => faltouReps(series, r) || (!falhaVale(cfg) && rir0Cedo(series));
 export const noTopo = (series: SerieRegras[], r: Faixa) => series.length > 0 && series.every((x) => x.reps >= r.max);
 
 const seguidasEnquanto = (hist: Passagem[], cond: (p: Passagem) => boolean) => {
@@ -370,15 +381,16 @@ export function sugerirForca({
   /* 3. Base: dupla progressão. */
   const minReps = Math.min(...series.map((x) => x.reps || 0));
 
-  if (abaixoDaFaixa(series, r)) {
-    const vezesAbaixo = seguidasEnquanto(hist, (h) => abaixoDaFaixa(h.e.series, r));
+  if (abaixoDaFaixa(series, r, cfg)) {
+    const vezesAbaixo = seguidasEnquanto(hist, (h) => abaixoDaFaixa(h.e.series, r, cfg));
     out.tipo = "manter";
     if (topKg > 0 && vezesAbaixo >= cfg.vezesAbaixo && cfg.reducaoAbaixo > 0) {
       out.kg = arredondar(topKg * (1 - cfg.reducaoAbaixo / 100), inc || 0.5);
       out.tipo = "reduzir";
-      out.motivo = `Abaixo da faixa ${vezesAbaixo} vezes seguidas: −${fmt(cfg.reducaoAbaixo)}% para recuperar as reps.`;
+      const soReps = hist.slice(0, vezesAbaixo).every((h) => faltouReps(h.e.series, r));
+      out.motivo = `${soReps ? "Abaixo da faixa" : "Abaixo da faixa ou sem sobra (RIR 0)"} ${vezesAbaixo} vezes seguidas: −${fmt(cfg.reducaoAbaixo)}% para recuperar as reps.`;
     } else {
-      const rir0 = series.slice(0, -1).some((x) => x.rir === 0);
+      const rir0 = !falhaVale(cfg) && rir0Cedo(series);
       out.motivo = `${rir0 ? "Chegou a RIR 0 antes da última série" : `Ficou abaixo de ${r.min} reps`}: mantenha ${carga ?? "o esforço"} hoje.`;
     }
   } else if (cat === "comp") {
@@ -395,9 +407,9 @@ export function sugerirForca({
     } else if (topo) {
       out.tipo = "subir";
       if (topKg > 0 && inc > 0) {
-        out.kg = arredondar(topKg + inc, inc);
+        out.kg = centesimos(topKg + inc);
         out.reps = r.min === r.max ? item.reps : `${r.min}-${r.max}`;
-        out.motivo = `Bateu ${r.max} reps nas ${series.length} séries com RIR ${cfg.rirSubir} ou mais: ${incTxt(inc, topKg)}.`;
+        out.motivo = `Bateu ${r.max} reps nas ${series.length} séries${falhaVale(cfg) ? "" : ` com RIR ${cfg.rirSubir} ou mais`}: ${incTxt(inc, topKg)}.`;
       } else {
         out.motivo = `Bateu ${r.max} reps em todas as séries: acrescente carga (cinto ou halter) ou desça em 3 s.`;
       }
@@ -417,10 +429,10 @@ export function sugerirForca({
         out.reps = String(r.max + 2);
         out.motivo = `O próximo peso (+${fmt(inc, 2)} kg) é um salto de ${fmt(salto, 0)}%. Mantenha ${kgTxt(topKg)} e faça mais reps, pausa de 1 s no topo ou descida em 3 s.`;
       } else {
-        out.kg = arredondar(topKg + inc, inc);
+        out.kg = centesimos(topKg + inc);
         out.tipo = "subir";
         out.reps = String(r.min);
-        out.motivo = `Passou de ${r.max} reps em todas as séries ${seguidas} vezes seguidas: ${incTxt(inc, topKg)} e volte para ${r.min} reps.`;
+        out.motivo = `Bateu ${r.max} reps em todas as séries ${seguidas} vezes seguidas: ${incTxt(inc, topKg)} e volte para ${r.min} reps.`;
       }
     } else if (seguidas >= 1) {
       out.tipo = "manter";

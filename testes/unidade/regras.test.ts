@@ -26,6 +26,8 @@ const LATERAL = { item: { exId: "elev_lateral", series: 4, reps: "12-15", cat: "
 const nivel = (n: Prontidao["nivel"]): Prontidao => ({ nivel: n, motivo: "", media: null, noite: null, noites: 0, criticas: 0 });
 const forca = (alvo: typeof SUPINO, sessoes: SessaoRegras[], extra: { prontidao?: Prontidao; deload?: boolean; cfg?: Partial<typeof PADRAO> } = {}) =>
   sugerirForca({ ...alvo, sessoes, prontidao: extra.prontidao, deload: extra.deload, cfg: { ...PADRAO, ...extra.cfg } });
+/** Quem prefere deixar 1 rep de sobra liga isso em Ajustes; era o padrão do app antigo. */
+const COM_RESERVA = { cfg: { rirSubir: 1 } };
 
 describe("composto: dupla progressão", () => {
   it("primeira vez: sem carga sugerida", () => {
@@ -34,16 +36,27 @@ describe("composto: dupla progressão", () => {
     expect(s.motivo).toContain("RIR 2");
   });
 
-  it("topo da faixa em todas as séries com RIR 1 ou mais: sobe um passo", () => {
+  it("topo da faixa em todas as séries: sobe um passo", () => {
     const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [2, 1, 1]) })]);
     expect(s).toMatchObject({ tipo: "subir", kg: 62.5, reps: "8-10" });
-    expect(s.motivo).toBe("Bateu 10 reps nas 3 séries com RIR 1 ou mais: +2,5 kg (4,2%).");
+    expect(s.motivo).toBe("Bateu 10 reps nas 3 séries: +2,5 kg (4,2%).");
   });
 
-  it("topo da faixa com RIR 0 na última série: mantém", () => {
-    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [2, 1, 0]) })]);
-    expect(s).toMatchObject({ tipo: "manter", kg: 60 });
-    expect(s.motivo).toContain("RIR abaixo de 1");
+  it("falha vale: topo da faixa com RIR 0 em todas as séries também sobe", () => {
+    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], 0) })]);
+    expect(s).toMatchObject({ tipo: "subir", kg: 62.5 });
+  });
+
+  it("falha vale: RIR 0 dentro da faixa não conta como abaixo, nem reduz a carga", () => {
+    const h = [2, 5, 8].map((d) => sessao(d, { supino: series(60, [9, 9, 8], 0) }));
+    expect(forca(SUPINO, h)).toMatchObject({ tipo: "manter", kg: 60, reps: "9" });
+  });
+
+  it("o aumento soma o passo à carga atual, mesmo fora dos múltiplos do passo", () => {
+    const halter = { item: { exId: "bulgaro", series: 3, reps: "10", cat: "comp" as Cat }, info: { tipo: "comp" as Cat, equip: "Halteres" } };
+    const s = forca(halter, [sessao(2, { bulgaro: series(19, [10, 10, 10]) })]);
+    expect(s).toMatchObject({ tipo: "subir", kg: 21 });
+    expect(s.motivo).toBe("Bateu 10 reps nas 3 séries: +2 kg (10,5%).");
   });
 
   it("topo da faixa com RIR em branco: mantém e pede o RIR (mudança aprovada)", () => {
@@ -52,10 +65,6 @@ describe("composto: dupla progressão", () => {
     expect(s.motivo).toBe("Bateu o topo, mas faltou anotar o RIR: mantenha 60 kg e anote o RIR para liberar o aumento.");
   });
 
-  it("RIR baixo anotado pesa mais que RIR em branco", () => {
-    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [null, 2, 0]) })]);
-    expect(s.motivo).toContain("RIR abaixo de 1");
-  });
 
   it("dentro da faixa: mesma carga e +1 rep sobre a pior série", () => {
     const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 9, 8]) })]);
@@ -74,11 +83,6 @@ describe("composto: dupla progressão", () => {
     expect(s.motivo).toContain("2 vezes seguidas");
   });
 
-  it("RIR 0 antes da última série conta como abaixo da faixa", () => {
-    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [0, 1, 1]) })]);
-    expect(s).toMatchObject({ tipo: "manter", kg: 60 });
-    expect(s.motivo).toContain("RIR 0 antes da última série");
-  });
 
   it("peso corporal no topo: sugere acrescentar carga, sem número", () => {
     const s = sugerirForca({ item: { exId: "barra", series: 3, reps: "8-10", cat: "comp" }, info: { tipo: "comp", equip: "Peso corporal", semCarga: true }, sessoes: [sessao(2, { barra: series(0, [10, 10, 10]) })], cfg: PADRAO });
@@ -89,6 +93,37 @@ describe("composto: dupla progressão", () => {
   it("incremento por % da carga, nunca menor que o passo do equipamento", () => {
     const s = forca(SUPINO, [sessao(2, { supino: series(100, [10, 10, 10]) })], { cfg: { incPctComp: 5 } });
     expect(s.kg).toBe(105);
+  });
+});
+
+describe("composto com reserva (RIR mínimo 1 em Ajustes)", () => {
+  it("topo da faixa com RIR 1 ou mais: sobe", () => {
+    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [2, 1, 1]) })], COM_RESERVA);
+    expect(s.motivo).toBe("Bateu 10 reps nas 3 séries com RIR 1 ou mais: +2,5 kg (4,2%).");
+  });
+
+  it("topo da faixa com RIR 0 na última série: mantém", () => {
+    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [2, 1, 0]) })], COM_RESERVA);
+    expect(s).toMatchObject({ tipo: "manter", kg: 60 });
+    expect(s.motivo).toContain("RIR abaixo de 1");
+  });
+
+  it("RIR baixo anotado pesa mais que RIR em branco", () => {
+    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [null, 2, 0]) })], COM_RESERVA);
+    expect(s.motivo).toContain("RIR abaixo de 1");
+  });
+
+  it("RIR 0 antes da última série conta como abaixo da faixa", () => {
+    const s = forca(SUPINO, [sessao(2, { supino: series(60, [10, 10, 10], [0, 1, 1]) })], COM_RESERVA);
+    expect(s).toMatchObject({ tipo: "manter", kg: 60 });
+    expect(s.motivo).toContain("RIR 0 antes da última série");
+  });
+
+  it("RIR 0 cedo duas vezes seguidas: reduz e o texto diz o motivo", () => {
+    const h = [2, 5].map((d) => sessao(d, { supino: series(60, [10, 9, 9], [0, 1, 1]) }));
+    const s = forca(SUPINO, h, COM_RESERVA);
+    expect(s).toMatchObject({ tipo: "reduzir", kg: 57.5 });
+    expect(s.motivo).toBe("Abaixo da faixa ou sem sobra (RIR 0) 2 vezes seguidas: −5% para recuperar as reps.");
   });
 });
 
@@ -107,7 +142,9 @@ describe("isolado: primeiro reps, depois carga", () => {
 
   it("isolado sobe mesmo com RIR 0 na última série (RIR só trava composto)", () => {
     const h = [sessao(2, { rosca: series(30, [12, 12, 12], [1, 1, 0]) }, {}, "iso"), sessao(5, { rosca: series(30, [12, 12, 12], [1, 1, 0]) }, {}, "iso")];
-    expect(forca(rosca, h).tipo).toBe("subir");
+    const s = forca(rosca, h, COM_RESERVA);
+    expect(s.tipo).toBe("subir");
+    expect(s.motivo).toBe("Bateu 12 reps em todas as séries 2 vezes seguidas: +2,5 kg (8,3%) e volte para 10 reps.");
   });
 
   it("elevação lateral: salto maior que 10% vira mais reps em vez de mais peso", () => {
@@ -190,9 +227,11 @@ describe("prontidão do dia", () => {
   it("noite anterior entre 6 e 6,5 h: amarela", () => expect(p(noites([6.25, 8, 8, 8, 8, 8, 8])).nivel).toBe("amarelo"));
   it("duas noites abaixo de 5 h na semana: vermelha", () => expect(p(noites([8, 4.5, 9, 4.5, 9, 9, 9]))).toMatchObject({ nivel: "vermelho", criticas: 2 }));
   it("dor muscular 4/5 no último treino: vermelha", () => expect(p(noites([8, 8, 8]), [sessao(1, {}, { dorMusc: 4 })]).nivel).toBe("vermelho"));
-  it("RIR 0 em metade das séries de composto nos 2 últimos treinos: amarela", () => {
-    const s = [sessao(1, { supino: series(60, [8, 8], [0, 1]) }), sessao(3, { supino: series(60, [8, 8], [1, 0]) })];
-    expect(p(noites([8, 8, 8]), s)).toMatchObject({ nivel: "amarelo", motivo: "RIR 0 frequente nos últimos treinos: mantendo as cargas." });
+  const comRir0 = [sessao(1, { supino: series(60, [8, 8], [0, 1]) }), sessao(3, { supino: series(60, [8, 8], [1, 0]) })];
+  it("falha vale: RIR 0 frequente não tira o verde", () => expect(p(noites([8, 8, 8]), comRir0).nivel).toBe("verde"));
+  it("com reserva: RIR 0 em metade das séries de composto nos 2 últimos treinos deixa amarela", () => {
+    const r = prontidao({ sono: noites([8, 8, 8]), sessoes: comRir0, cfg: { ...PADRAO, rirSubir: 1 }, hoje: HOJE });
+    expect(r).toMatchObject({ nivel: "amarelo", motivo: "RIR 0 frequente nos últimos treinos: mantendo as cargas." });
   });
   it("energia até 2 nos 2 últimos treinos: amarela", () => {
     const s = [sessao(1, { supino: series(60, [8]) }, { energia: 2 }), sessao(3, { supino: series(60, [8]) }, { energia: 1 })];

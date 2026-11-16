@@ -144,7 +144,10 @@ export async function converter(backup: BackupAntigo, uid: string) {
   for (const k of Object.keys(treinosAntigos)) mapaTreino.set(k, await id("treino", k));
   const idTreino = (antigo: string | null | undefined) => (antigo ? (mapaTreino.get(antigo) ?? null) : null);
   const rec = E.config?.rec ?? {};
-  const regras = Object.fromEntries(CHAVES_REGRAS.filter((k) => Number.isFinite(rec[k])).map((k) => [k, rec[k]!]));
+  // rirSubir = 1 era o padrão do app antigo; quem não mexeu nele passa a usar o padrão novo (0: falha vale).
+  const regras = Object.fromEntries(
+    CHAVES_REGRAS.filter((k) => Number.isFinite(rec[k]) && !(k === "rirSubir" && rec[k] === 1)).map((k) => [k, rec[k]!]),
+  );
 
   const treinos = (E.ordem ?? []).map((k, i) => {
     const t = treinosAntigos[k]!;

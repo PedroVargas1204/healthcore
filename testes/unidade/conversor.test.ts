@@ -18,7 +18,17 @@ describe("uuidv5", () => {
 describe("converter o backup do app antigo", () => {
   it("o backup real gera exatamente o mesmo pedido que o conversor de referência", async () => {
     const b = lerBackup(real);
-    expect(await converter(b, UID)).toEqual(referencia.converter(JSON.parse(real), UID));
+    const ref = referencia.converter(JSON.parse(real), UID) as { configuracoes: { regras: Record<string, number> } };
+    // Única diferença: o RIR mínimo 1 (padrão antigo) não é importado, para valer o padrão novo (0: falha vale).
+    expect(ref.configuracoes.regras.rirSubir).toBe(1);
+    delete ref.configuracoes.regras.rirSubir;
+    expect(await converter(b, UID)).toEqual(ref);
+  });
+
+  it("RIR mínimo diferente de 1 foi escolha da pessoa e é importado", async () => {
+    const b = JSON.parse(real);
+    b.E.config.rec.rirSubir = 2;
+    expect((await converter(lerBackup(JSON.stringify(b)), UID)).configuracoes.regras.rirSubir).toBe(2);
   });
 
   it("com histórico: só diferem a prontidão (amarelo → amarela) e a dor sem exercício", async () => {
