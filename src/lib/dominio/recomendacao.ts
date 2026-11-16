@@ -1,8 +1,7 @@
-// Ponte entre os registros novos e a recomendação do app antigo (recomendacao.js).
-// A Fase 4 troca a implementação por TypeScript com testes; esta interface fica.
+// Ponte entre os registros do app (banco) e as regras de recomendação (regras.ts), que trabalham com formatos enxutos.
 
-import { Rec } from "../legado/recomendacao";
-import type { ProntidaoLegado, SessaoLegado, SonoLegado } from "../legado/recomendacao";
+import * as Rec from "./regras";
+import type { Prontidao as ProntidaoRegras, RegrasCompletas, SessaoRegras, SonoRegras } from "./regras";
 import { exInfo } from "./exercicios";
 import type {
   Configuracoes,
@@ -16,25 +15,26 @@ import type {
   TreinoExercicio,
 } from "./tipos";
 
-export type Prontidao = ProntidaoLegado;
+export type Prontidao = ProntidaoRegras;
+export type SessaoLegado = SessaoRegras;
 export const PADRAO = Rec.PADRAO;
 export const CAMPOS = Rec.CAMPOS;
 export const faixaReps = Rec.faixa;
 
-export const regrasCompletas = (c: Configuracoes | undefined) => ({ ...Rec.PADRAO, ...(c?.regras ?? {}) });
+export const regrasCompletas = (c: Configuracoes | undefined): RegrasCompletas => ({ ...Rec.PADRAO, ...(c?.regras ?? {}) });
 
 export const nivelParaBanco = (n: NivelProntidao): ProntidaoBanco => (n === "amarelo" ? "amarela" : n === "vermelho" ? "vermelha" : "verde");
 export const nivelDoBanco = (n: ProntidaoBanco | null): NivelProntidao | null =>
   n === "amarela" ? "amarelo" : n === "vermelha" ? "vermelho" : n === "verde" ? "verde" : null;
 
-export function sonoLegado(noites: Noite[]): SonoLegado {
-  const s: SonoLegado = {};
+export function sonoLegado(noites: Noite[]): SonoRegras {
+  const s: SonoRegras = {};
   for (const n of noites) s[n.data] = { h: n.horas, q: n.qualidade, score: n.score };
   return s;
 }
 
 /** Sessões no formato antigo, da mais recente para a mais antiga. */
-export function sessoesLegado(sessoes: Sessao[]): SessaoLegado[] {
+export function sessoesLegado(sessoes: Sessao[]): SessaoRegras[] {
   return [...sessoes]
     .sort((a, b) => b.data.localeCompare(a.data) || (b.inicio ?? "").localeCompare(a.inicio ?? ""))
     .map((s) => ({

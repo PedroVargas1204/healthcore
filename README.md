@@ -18,7 +18,8 @@ App de treino para celular (PWA): musculação com foco em ombro lateral e dorsa
 | `src/lib/dominio` | Regras: catálogo, volume por músculo, recordes, conversor do backup antigo |
 | `src/lib/dados` | Banco do aparelho, fila e sincronização |
 | `src/lib/acoes` | Treino em andamento, importar, exportar, planos |
-| `src/lib/legado` | Recomendação de carga do app antigo, sem alteração (porte para TS na Fase 4) |
+| `src/lib/dominio/regras.ts` | Recomendação de carga: prontidão, sugestão por exercício, deload, calibragem do sono |
+| `testes/referencia` | Recomendação do app antigo, guardada só para os testes de comparação |
 | `supabase/migrations` | Esquema do banco, RLS e funções |
 | `supabase/tests` | Testes do banco |
 | `testes` | Testes de unidade e de ponta a ponta |

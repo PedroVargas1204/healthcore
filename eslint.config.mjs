@@ -24,7 +24,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "public/sw.js",
-    "src/lib/legado/**",
+    "testes/referencia/**",
     "testes/dados/**",
   ]),
 ]);

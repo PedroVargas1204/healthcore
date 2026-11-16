@@ -11,6 +11,7 @@ import { useAvisoCurto } from "@/componentes/ui/aviso-curto";
 import { useBase } from "@/lib/dados/base";
 import { salvarConfig, salvarPerfil } from "@/lib/dados/repo";
 import { CAMPOS, PADRAO } from "@/lib/dominio/recomendacao";
+import type { ChaveRegra } from "@/lib/dominio/regras";
 import { dataCurta } from "@/lib/util/datas";
 import { fmt, lerNumero, mmss } from "@/lib/util/formato";
 
@@ -39,7 +40,7 @@ export default function Ajustes() {
 
   const r = base.regras;
   const grupos = [...new Set(CAMPOS.map((c) => c.g))];
-  const valor = (k: string, un: string) => {
+  const valor = (k: ChaveRegra, un: string) => {
     const v = r[k] ?? 0;
     if (/^incPct/.test(k) && !v) return "Desligado";
     return un === "s" ? mmss(v) : `${fmt(v, 2)}${un ? (un === "%" || un === "/5" ? "" : " ") + un : ""}`;

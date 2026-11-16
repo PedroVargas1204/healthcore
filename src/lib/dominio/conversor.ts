@@ -2,11 +2,11 @@
 // Ids determinísticos (UUID v5 a partir da conta e do id antigo): importar de novo não duplica.
 
 import { EX, MODELOS } from "./catalogo";
-import { Rec } from "../legado/recomendacao";
+import { PADRAO } from "./regras";
 
 export const NS_HEALTHCORE = "6f1c2a3e-9b7d-5e41-8a2c-4d3b5e6f7a80";
 
-const CHAVES_REGRAS = Object.keys(Rec.PADRAO);
+const CHAVES_REGRAS = Object.keys(PADRAO);
 
 export async function uuidv5(nome: string, ns = NS_HEALTHCORE): Promise<string> {
   const nsBytes = new Uint8Array((ns.replace(/-/g, "").match(/../g) ?? []).map((h) => parseInt(h, 16)));

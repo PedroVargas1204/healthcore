@@ -1,0 +1,16 @@
+from base import *
+async def f(p):
+    ctx,pg,erros=await abrir(p)
+    await pg.goto(BASE+'/'); await pg.wait_for_timeout(2500)
+    await pg.get_by_role('button', name='Treinar de novo').click(); await pg.wait_for_timeout(600)
+    await pg.get_by_text('Costas (largura) + ombro').first.click(); await pg.wait_for_timeout(2000)
+    print(pg.url); print((await pg.inner_text('body'))[:700].replace('\n',' | '))
+    await foto(pg,'60-treino-fase4', True)
+    return print((await pg.inner_text('body'))[-300:].replace('\n',' | '), [e for e in erros if 'Service Worker' not in e][:8])
+    b=pg.get_by_role('dialog').get_by_role('button', name='Descartar')
+    if await b.count(): await b.click(); await pg.wait_for_timeout(800)
+    await pg.goto(BASE+'/ajustes/'); await pg.wait_for_timeout(1500)
+    print((await pg.inner_text('body'))[:160].replace('\n',' | '))
+    print([e for e in erros if 'Service Worker' not in e][:8])
+    await ctx.close()
+rodar(f)

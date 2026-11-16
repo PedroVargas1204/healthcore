@@ -1,7 +1,7 @@
 /* Cópia fiel do recomendacao.js do app antigo, só embrulhada como módulo.
-   A Fase 4 substitui este arquivo pela versão em TypeScript com testes; até lá o app usa as regras de hoje sem mudança.
+   Desde a Fase 4 o app usa src/lib/dominio/regras.ts; este arquivo fica só como referência para os testes de comparação.
    Diferença única: LATERAIS vem do catálogo em vez de uma variável global. */
-import { LATERAIS } from "../dominio/catalogo";
+import { LATERAIS } from "../../src/lib/dominio/catalogo";
 /* HealthCore — módulo de recomendação de carga.
    Funções puras: recebem dados e configuração e devolvem sugestões com o motivo.
    Nada aqui mexe na tela nem no armazenamento, para dar para ajustar as regras com calma depois.
