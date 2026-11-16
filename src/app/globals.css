@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+/* HealthCore · tokens do DESIGN.md v2. O tema segue o celular. */
+:root {
+  color-scheme: light;
+  --bg: #eceef1;
+  --s1: #ffffff;
+  --s2: #f3f4f6;
+  --s3: #e2e5e9;
+  --line: #dadde2;
+  --tx: #111317;
+  --tx2: #2b2f36;
+  --mut: #555b66;
+  --dim: #8a909a;
+  --ac: #e5401f;
+  --ac-press: #cc3818;
+  --ac-tx: #c2331a;
+  --on-ac: #111317;
+  --ac-tint: #fce4de;
+  --ink: #111214;
+  --ok: #1f9d5b;
+  --warn: #c9851a;
+  --bad: #c92a45;
+  --ok-tx: #157a45;
+  --warn-tx: #8a5a0f;
+  --bad-tx: #a8213a;
+  --ok-tint: #e2f5ea;
+  --warn-tint: #fbf0dc;
+  --bad-tint: #fbe3e8;
+  --mapa-0: #dcdfe4;
+  --mapa-1: #f6c4b5;
+  --mapa-2: #ee8e70;
+  --mapa-3: #db5530;
+  --mapa-4: #b02e16;
+  --mapa-base: #eef0f3;
+  --dur-toque: 120ms;
+  --dur-troca: 200ms;
+  --dur-alerta: 320ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #111214;
+    --s1: #1a1b1f;
+    --s2: #23252a;
+    --s3: #2e3036;
+    --line: #2c2e34;
+    --tx: #f3f4f6;
+    --tx2: #d5d8dd;
+    --mut: #a3a7b0;
+    --dim: #6e737d;
+    --ac: #ff4d2e;
+    --ac-press: #e2462b;
+    --ac-tx: #ff6a4d;
+    --on-ac: #111214;
+    --ac-tint: #3a1a13;
+    --ok: #34c77b;
+    --warn: #f2b33d;
+    --bad: #f0607a;
+    --ok-tx: #5bd898;
+    --warn-tx: #f5c468;
+    --bad-tx: #f58a9d;
+    --ok-tint: #12291d;
+    --warn-tint: #2e2412;
+    --bad-tint: #331821;
+    --mapa-0: #2b2d33;
+    --mapa-1: #5e2b20;
+    --mapa-2: #8f3521;
+    --mapa-3: #c9421f;
+    --mapa-4: #ff4d2e;
+    --mapa-base: #222429;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-toque: 0ms;
+    --dur-troca: 0ms;
+    --dur-alerta: 0ms;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-s1: var(--s1);
+  --color-s2: var(--s2);
+  --color-s3: var(--s3);
+  --color-line: var(--line);
+  --color-tx: var(--tx);
+  --color-tx2: var(--tx2);
+  --color-mut: var(--mut);
+  --color-dim: var(--dim);
+  --color-ac: var(--ac);
+  --color-ac-press: var(--ac-press);
+  --color-ac-tx: var(--ac-tx);
+  --color-on-ac: var(--on-ac);
+  --color-ac-tint: var(--ac-tint);
+  --color-ink: var(--ink);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-ok-tx: var(--ok-tx);
+  --color-warn-tx: var(--warn-tx);
+  --color-bad-tx: var(--bad-tx);
+  --color-ok-tint: var(--ok-tint);
+  --color-warn-tint: var(--warn-tint);
+  --color-bad-tint: var(--bad-tint);
+  --font-disp: var(--fonte-disp), "Arial Narrow", sans-serif;
+  --font-body: var(--fonte-body), system-ui, sans-serif;
+  --radius-ctl: 8px;
+  --radius-card: 14px;
+  --radius-folha: 20px;
+}
+
+@layer base {
+  /* No iPhone, 1 rem acompanha o tamanho de letra escolhido nos Ajustes. */
+  html {
+    font: -apple-system-body;
+    -webkit-text-size-adjust: 100%;
+    background: var(--bg);
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.45;
+    background: var(--bg);
+    color: var(--tx);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ac-tx);
+    outline-offset: 2px;
+  }
+}
+
+/* Estilos de texto do DESIGN.md */
+@utility t-tela {
+  font-family: var(--font-disp);
+  font-weight: 800;
+  font-size: min(3.25rem, 68px);
+  line-height: 0.9;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+@utility t-numero {
+  font-family: var(--font-disp);
+  font-weight: 800;
+  font-size: 2.25rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+@utility t-h1 {
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: 1.625rem;
+  line-height: 1.05;
+}
+@utility t-h2 {
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1.1;
+}
+@utility t-botao {
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+@utility t-destaque {
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+@utility t-corpo {
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+@utility t-rotulo {
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+@utility t-legenda {
+  font-weight: 500;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+@utility tab-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Áreas seguras do iPhone */
+@utility pt-seguro {
+  padding-top: max(env(safe-area-inset-top), 12px);
+}
+@utility pb-seguro {
+  padding-bottom: max(env(safe-area-inset-bottom), 12px);
+}
+
+/* Toque: o botão afunda para 98% */
+@utility toque {
+  transition:
+    transform var(--dur-toque) ease-out,
+    background-color var(--dur-toque) ease-out;
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+@keyframes giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes subir {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes descer {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes surgir {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sumir {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes acender {
+  from {
+    background-color: var(--bg);
+  }
+  to {
+    background-color: var(--ac-tint);
+  }
+}
+
+.folha[data-state="open"] {
+  animation: subir var(--dur-troca) ease-out;
+}
+.folha[data-state="closed"] {
+  animation: descer var(--dur-troca) ease-in;
+}
+.veu[data-state="open"] {
+  animation: surgir var(--dur-troca) ease-out;
+}
+.veu[data-state="closed"] {
+  animation: sumir var(--dur-troca) ease-in;
+}

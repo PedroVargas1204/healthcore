@@ -1,0 +1,325 @@
+{
+ "app": "healthcore",
+ "v": 2,
+ "exportadoEm": "2026-11-13T17:35:11.677Z",
+ "E": {
+  "v": 2,
+  "criadoEm": "2026-11-13",
+  "onboarding": true,
+  "modelo": "dimorfismo5",
+  "perfil": {
+   "nome": "Pessoa Teste",
+   "altura": 175
+  },
+  "treinos": {
+   "A": {
+    "id": "A",
+    "nome": "Costas (largura) + ombro",
+    "tipo": "forca",
+    "tags": [],
+    "ex": [
+     {
+      "exId": "puxada",
+      "series": 4,
+      "reps": "8-10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "remada_apoiada",
+      "series": 3,
+      "reps": "8-10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "pullover",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "elev_lateral",
+      "series": 4,
+      "reps": "12-15",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "rosca_direta",
+      "series": 3,
+      "reps": "10",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     }
+    ]
+   },
+   "B": {
+    "id": "B",
+    "nome": "Inferior (força)",
+    "tipo": "forca",
+    "tags": [
+     "pernas"
+    ],
+    "ex": [
+     {
+      "exId": "agachamento",
+      "series": 4,
+      "reps": "6-8",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "stiff",
+      "series": 3,
+      "reps": "8-10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "leg_press",
+      "series": 3,
+      "reps": "10-12",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "panturrilha",
+      "series": 4,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "prancha",
+      "series": 3,
+      "reps": "40 s",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     }
+    ]
+   },
+   "C": {
+    "id": "C",
+    "nome": "Ombros + braços",
+    "tipo": "forca",
+    "tags": [],
+    "ex": [
+     {
+      "exId": "desenvolvimento",
+      "series": 3,
+      "reps": "8-10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "elev_lateral_polia",
+      "series": 4,
+      "reps": "12-15",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "crucifixo_inverso",
+      "series": 3,
+      "reps": "15",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "triceps_polia",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "rosca_martelo",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     }
+    ]
+   },
+   "D": {
+    "id": "D",
+    "nome": "Peito + costas",
+    "tipo": "forca",
+    "tags": [],
+    "ex": [
+     {
+      "exId": "supino_inclinado",
+      "series": 4,
+      "reps": "8-10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "barra_fixa",
+      "series": 3,
+      "reps": "falha",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "crossover",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "remada_baixa",
+      "series": 3,
+      "reps": "10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "elev_lateral",
+      "series": 3,
+      "reps": "15",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     }
+    ]
+   },
+   "E": {
+    "id": "E",
+    "nome": "Inferior (volume)",
+    "tipo": "forca",
+    "tags": [
+     "pernas"
+    ],
+    "ex": [
+     {
+      "exId": "bulgaro",
+      "series": 3,
+      "reps": "10",
+      "desc": null,
+      "obs": "",
+      "cat": "comp"
+     },
+     {
+      "exId": "mesa_flexora",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "extensora",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     },
+     {
+      "exId": "abdominal_infra",
+      "series": 3,
+      "reps": "12",
+      "desc": null,
+      "obs": "",
+      "cat": "iso"
+     }
+    ]
+   }
+  },
+  "ordem": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "semana": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "A",
+   "B"
+  ],
+  "sono": {},
+  "medidas": [
+   {
+    "bf": 15,
+    "data": "2026-11-13",
+    "id": "mwf4cntfics21",
+    "peso": 75
+   }
+  ],
+  "exCustom": {},
+  "config": {
+   "rec": {
+    "sonoVerdeMedia": 7,
+    "sonoVerdeNoite": 6.5,
+    "sonoAmareloNoite": 6,
+    "sonoVermelhoMedia": 6,
+    "sonoCritico": 5,
+    "noitesCriticas": 2,
+    "sessoesRelato": 2,
+    "rir0Frequente": 50,
+    "energiaBaixa": 2,
+    "dorMuscVermelho": 4,
+    "rirSubir": 1,
+    "isoSessoesTopo": 2,
+    "vezesAbaixo": 2,
+    "reducaoAbaixo": 5,
+    "reducaoVermelho": 7.5,
+    "incCompHalteres": 2,
+    "incCompBarra": 2.5,
+    "incCompMaquina": 2.5,
+    "incCompPolia": 2.5,
+    "incIsoHalteres": 1,
+    "incIsoBarra": 2.5,
+    "incIsoMaquina": 2.5,
+    "incIsoPolia": 2.5,
+    "incPctComp": 0,
+    "incPctIso": 0,
+    "saltoMaxLateral": 10,
+    "estagnacaoSessoes": 3,
+    "semanasDeload": 6,
+    "deloadVolume": 40,
+    "deloadCarga": 0,
+    "descComposto": 120,
+    "descIsolado": 75,
+    "calibMinSemanas": 4,
+    "calibMinSessoes": 12
+   },
+   "som": true
+  },
+  "deload": null,
+  "deloads": [],
+  "deloadDispensado": null,
+  "calibracao": null,
+  "calibDispensada": null,
+  "ativo": null
+ },
+ "T": []
+}

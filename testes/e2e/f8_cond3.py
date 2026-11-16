@@ -1,0 +1,20 @@
+import subprocess
+from base import *
+def sql(q): return subprocess.check_output(['psql','-h','/tmp/pglocal','-p','54329','-U','postgres','hc','-Atc',q]).decode().strip()
+async def f(p):
+    ctx,pg,erros=await abrir(p)
+    await pg.goto(BASE+'/treino/'); await pg.wait_for_timeout(2000)
+    await pg.get_by_role('button', name='Iniciar cronômetro').click(); await pg.wait_for_timeout(2500)
+    await foto(pg,'54-crono', True); print((await pg.inner_text('body'))[:300].replace('\n',' | '))
+    await pg.get_by_role('button', name='Fechar treino').click(); await pg.wait_for_timeout(1200)
+    await foto(pg,'55-fechar-cond', True)
+    # dor articular: Sim sem exercicio (treino de condicionamento guarda na observacao)
+    await pg.get_by_role('radio', name='Sim').click(); await pg.wait_for_timeout(500)
+    await foto(pg,'56-dor', True)
+    await pg.get_by_role('button', name='Salvar treino').click(); await pg.wait_for_timeout(2500)
+    print(pg.url); await foto(pg,'57-resumo-cond', True)
+    print((await pg.inner_text('body'))[:400].replace('\n',' | '))
+    print(sql("select tipo,nome,tempo_total_s,rpe,dor_articular,obs from sessoes order by criado_em desc limit 1"))
+    print([e for e in erros if 'Service Worker' not in e][:8])
+    await ctx.close()
+rodar(f)
