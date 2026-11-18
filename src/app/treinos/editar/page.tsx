@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { PaginaCheia } from "@/componentes/estrutura";
 import { ListaExercicios } from "@/componentes/lista-exercicios";
 import { Abertura } from "@/componentes/provedores";
@@ -38,8 +38,8 @@ function Editor() {
   const [excluir, setExcluir] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!base || t) return;
+  // Copia o treino para o formulário uma vez (ou começa um em branco).
+  if (base && !t) {
     if (id) {
       const x = base.treinoPorId.get(id);
       if (x) setT(structuredClone(x));
@@ -58,7 +58,7 @@ function Editor() {
         estacoes: [],
       });
     }
-  }, [base, id, novo, t]);
+  }
 
   if (!base) return <Abertura />;
   if (!t)

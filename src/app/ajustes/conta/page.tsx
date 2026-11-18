@@ -7,7 +7,7 @@ import { Dialog } from "radix-ui";
 import { PaginaCheia } from "@/componentes/estrutura";
 import { Botao } from "@/componentes/ui/botao";
 import { Icone, type NomeIcone } from "@/componentes/ui/icone";
-import { Aviso } from "@/componentes/ui/pecas";
+import { Aviso, Confirmar } from "@/componentes/ui/pecas";
 import { useAvisoCurto } from "@/componentes/ui/aviso-curto";
 import { apagarConta, sair, useConta } from "@/lib/dados/conta";
 import { useEstadoSync } from "@/lib/dados/hooks";
@@ -45,6 +45,7 @@ export default function Conta() {
   const sync = useEstadoSync();
   const aviso = useAvisoCurto();
   const [apagar, setApagar] = useState(false);
+  const [sairPendente, setSairPendente] = useState(false);
   const [apagando, setApagando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   if (conta.estado !== "dentro") return null;
@@ -74,7 +75,7 @@ export default function Conta() {
     <PaginaCheia voltar={{ href: "/ajustes/", rotulo: "Ajustes" }} titulo="Conta">
       <div className="flex items-center gap-4 pt-2">
         <span className="font-disp flex size-16 shrink-0 items-center justify-center rounded-full bg-s2 text-2xl font-extrabold">{iniciais}</span>
-        <span className="flex flex-col">
+        <span className="flex min-w-0 flex-col [overflow-wrap:anywhere]">
           <span className="t-h2">{conta.nome || conta.email}</span>
           <span className="t-rotulo text-mut">Entrou com a conta Google{conta.nome ? ` · ${conta.email}` : ""}</span>
         </span>
@@ -106,6 +107,10 @@ export default function Conta() {
           sub={sync.pendentes ? `Atenção: ${sync.pendentes} ainda não ${sync.pendentes === 1 ? "subiu" : "subiram"} para a nuvem` : "Nada é apagado"}
           perigo="suave"
           aoTocar={async () => {
+            if (sync.pendentes) {
+              setSairPendente(true);
+              return;
+            }
             await sair(conta.uid);
             router.replace("/entrar/");
           }}
@@ -114,7 +119,20 @@ export default function Conta() {
       <div className="flex flex-col rounded-card bg-s1">
         <Item icone="lixo" titulo="Apagar conta e dados" perigo="forte" aoTocar={() => setApagar(true)} />
       </div>
-      <p className="t-legenda text-mut">Sair não apaga nada: ao entrar de novo, tudo volta. Apagar remove a conta e todos os dados da nuvem e deste celular.</p>
+      <p className="t-legenda text-mut">Sair não apaga o que já está na nuvem: ao entrar de novo, tudo volta. Apagar remove a conta e todos os dados da nuvem e deste celular.</p>
+      <Confirmar
+        aberta={sairPendente}
+        aoMudar={setSairPendente}
+        titulo="Sair sem salvar tudo?"
+        texto={`${sync.pendentes} ${sync.pendentes === 1 ? "registro ainda não subiu" : "registros ainda não subiram"} para a nuvem e ${sync.pendentes === 1 ? "se perde" : "se perdem"} se você sair agora. Conecte à internet e espere aparecer "Tudo salvo na nuvem".`}
+        sim="Sair mesmo assim"
+        nao="Ficar"
+        perigo
+        aoConfirmar={async () => {
+          await sair(conta.uid);
+          router.replace("/entrar/");
+        }}
+      />
 
       <Dialog.Root open={apagar} onOpenChange={setApagar}>
         <Dialog.Portal>

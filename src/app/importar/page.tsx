@@ -79,6 +79,11 @@ function Importar() {
 
   async function lerArquivo(f: File | undefined) {
     if (!f) return;
+    // Um backup de vários anos fica na casa de poucos MB; acima disso não é backup do app e travaria o celular.
+    if (f.size > LIMITE_BACKUP) {
+      setEstado({ fase: "escolher", erro: "Esse arquivo é grande demais para ser um backup do HealthCore (mais de 25 MB)." });
+      return;
+    }
     try {
       const backup = lerQualquerBackup(await f.text());
       setEstado({ fase: "previa", nome: f.name, backup });
@@ -113,7 +118,7 @@ function Importar() {
   if (estado.fase === "pronto") {
     const jaEvidencia = perfil?.modelo?.startsWith("evidencia");
     return (
-      <PaginaCheia>
+      <PaginaCheia tituloSecundario>
         <div className="flex flex-col gap-3 pt-14">
           <span className="flex size-16 items-center justify-center rounded-full bg-ok-tint text-ok-tx">
             <Icone nome="check" tamanho={32} traco={2.4} />
@@ -166,7 +171,7 @@ function Importar() {
     ) : null;
 
   return (
-    <PaginaCheia voltar={{ href: voltarPara, rotulo: "Cancelar" }} titulo="Importar backup">
+    <PaginaCheia tituloSecundario voltar={{ href: voltarPara, rotulo: "Cancelar" }} titulo="Importar backup">
       <input ref={input} type="file" accept=".json,application/json" className="sr-only" onChange={(e) => lerArquivo(e.target.files?.[0])} tabIndex={-1} aria-hidden="true" />
       {estado.fase === "escolher" && (
         <>
@@ -203,6 +208,8 @@ function Importar() {
     </PaginaCheia>
   );
 }
+
+const LIMITE_BACKUP = 25 * 1024 * 1024;
 
 export default function PaginaImportar() {
   return (

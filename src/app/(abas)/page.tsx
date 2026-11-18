@@ -178,7 +178,8 @@ function ConteudoHoje({ base }: { base: Base }) {
   const d = new Date();
   return (
     <>
-      <div className="flex items-start justify-between gap-3">
+      {/* Com letra grande, o selo de prontidão (ou "Lançar a noite") desce para baixo do dia. */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="t-tela">{DIAS_L[diaSemana(d)]}</h1>
           <p className="t-rotulo text-mut">{dataLonga(hoje)}</p>

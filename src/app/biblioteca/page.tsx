@@ -9,7 +9,7 @@ export default function Biblioteca() {
   const router = useRouter();
   const proprios = useProprios();
   return (
-    <PaginaCheia voltar={{ href: "/treinos/" }} titulo="Biblioteca">
+    <PaginaCheia tituloSecundario voltar={{ href: "/treinos/" }} titulo="Biblioteca">
       <h1 className="t-tela">Exercícios</h1>
       {proprios && <ListaExercicios proprios={proprios} aoAbrir={(c) => router.push(`/exercicio/?id=${c}`)} />}
     </PaginaCheia>

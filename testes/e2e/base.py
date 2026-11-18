@@ -3,9 +3,9 @@ import asyncio, json, subprocess, os, sys
 from playwright.async_api import async_playwright
 UID='aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa'
 AQUI=os.path.dirname(os.path.abspath(__file__))
-SESSAO=subprocess.check_output(['node',os.path.join(AQUI,'jwt.mjs'),UID,'pedro@teste.local','Pedro Vargas']).decode().strip()
+SESSAO=subprocess.check_output(['node',os.path.join(AQUI,'jwt.mjs'),UID,'pessoa@teste.local','Pessoa Teste']).decode().strip()
 BASE='http://localhost:3020'
-PERFIL='/tmp/hc-perfil'
+PERFIL='/tmp/hc-perfil-limpo'
 async def rota(route):
     u=route.request.url.replace('https://hiroraxpqkylghzkvcxp.supabase.co', BASE)
     try:

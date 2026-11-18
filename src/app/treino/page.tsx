@@ -27,13 +27,9 @@ export default function Treino() {
   const agora = useAgora(250);
 
   // O estado da tela espelha o rascunho do celular; cada mudança grava de novo.
+  if (base?.rascunho && (!a || a.sessao_id !== base.rascunho.sessao_id)) setA(base.rascunho);
   useEffect(() => {
-    if (!base) return;
-    if (!base.rascunho) {
-      if (!a) router.replace("/");
-      return;
-    }
-    if (!a || a.sessao_id !== base.rascunho.sessao_id) setA(base.rascunho);
+    if (base && !base.rascunho && !a) router.replace("/");
   }, [base, a, router]);
 
   useTelaAcesa(!!a);
@@ -83,10 +79,10 @@ export default function Treino() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col gap-4 px-5 pt-seguro pb-seguro" onPointerDown={liberarSom}>
-      <div className="grid min-h-11 grid-cols-[44px_1fr_44px] items-center gap-2 pt-1">
+      <div className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 pt-1">
         <BotaoIcone icone="x" rotulo="Voltar para Hoje (o treino continua aberto)" onClick={() => router.push("/")} />
-        <div className="flex flex-col items-center">
-          <span className="t-destaque truncate">{a.nome}</span>
+        <div className="flex min-w-0 flex-col items-center">
+          <span className="t-destaque max-w-full truncate">{a.nome}</span>
           <span className="t-legenda tab-num text-mut">{mmss((agora - a.inicio) / 1000)}</span>
         </div>
         {a.tipo === "forca" ? <BotaoIcone icone="lista" rotulo="Exercícios e opções do treino" onClick={() => setLista(true)} /> : <span />}

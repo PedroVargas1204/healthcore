@@ -13,7 +13,7 @@ export default function EscolherPlano() {
   const conta = useConta();
   if (conta.estado !== "dentro") return null;
   return (
-    <PaginaCheia voltar={{ href: "/boas-vindas/" }} titulo="Escolha um plano">
+    <PaginaCheia tituloSecundario voltar={{ href: "/boas-vindas/" }} titulo="Escolha um plano">
       <h1 className="t-tela">Seu plano</h1>
       <p className="t-corpo text-tx2">Dá para editar cada treino e trocar os dias depois, na aba Treinos.</p>
       <ListaModelos

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Icone } from "@/componentes/ui/icone";
 import { fmtKg, lerNumero } from "@/lib/util/formato";
 
@@ -24,11 +24,10 @@ export function Stepper({
   decimal?: boolean;
   aoMudar: (v: number | null) => void;
 }) {
-  const [texto, setTexto] = useState(valor === null ? "" : fmtKg(valor));
+  // Fora da edição o campo mostra o valor recebido; enquanto a pessoa digita, mostra o rascunho dela.
+  const [texto, setTexto] = useState("");
   const [editando, setEditando] = useState(false);
-  useEffect(() => {
-    if (!editando) setTexto(valor === null ? "" : fmtKg(valor));
-  }, [valor, editando]);
+  const formatado = valor === null ? "" : fmtKg(valor);
 
   const ajustar = (d: number) => {
     const base = valor ?? 0;
@@ -50,9 +49,10 @@ export function Stepper({
         <span className="sr-only">{rotulo}</span>
         <input
           inputMode={decimal ? "decimal" : "numeric"}
-          value={texto}
+          value={editando ? texto : formatado}
           placeholder="—"
           onFocus={(e) => {
+            setTexto(formatado);
             setEditando(true);
             e.currentTarget.select();
           }}

@@ -133,7 +133,7 @@ export function Segmentado<T extends string>({
           role="radio"
           aria-checked={o.valor === valor}
           onClick={() => aoMudar(o.valor)}
-          className={cn("t-rotulo min-h-11 flex-1 rounded-[6px] px-2", o.valor === valor ? "bg-s2 font-semibold text-tx" : "text-mut")}
+          className={cn("t-rotulo min-h-11 min-w-0 flex-1 rounded-[6px] px-2 py-1 leading-tight break-words", o.valor === valor ? "bg-s2 font-semibold text-tx" : "text-mut")}
         >
           {o.rotulo}
         </button>

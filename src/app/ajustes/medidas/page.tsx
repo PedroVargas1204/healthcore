@@ -17,7 +17,7 @@ export default function Medidas() {
   const [nova, setNova] = useState(false);
   const lista = [...(medidas ?? [])].reverse();
   return (
-    <PaginaCheia voltar={{ href: "/ajustes/", rotulo: "Ajustes" }} titulo="Medidas">
+    <PaginaCheia tituloSecundario voltar={{ href: "/ajustes/", rotulo: "Ajustes" }} titulo="Medidas">
       <h1 className="t-tela">Medidas</h1>
       <Botao tipo="secundario" icone="mais" onClick={() => setNova(true)}>
         Nova medida

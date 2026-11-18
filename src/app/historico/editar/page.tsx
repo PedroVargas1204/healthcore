@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { PaginaCheia } from "@/componentes/estrutura";
 import { Abertura } from "@/componentes/provedores";
 import { Botao, BotaoIcone } from "@/componentes/ui/botao";
@@ -26,14 +26,14 @@ function Editar() {
   const [tempo, setTempo] = useState("");
   const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!base || s) return;
+  // Copia a sessão para o formulário uma vez, quando ela chega do banco do celular.
+  if (base && !s) {
     const x = base.sessoes.find((y) => y.id === id);
     if (x) {
       setS(structuredClone(x));
       setTempo(x.tempo_total_s ? mmss(x.tempo_total_s) : "");
     }
-  }, [base, id, s]);
+  }
 
   if (!base) return <Abertura />;
   if (!s)
@@ -193,7 +193,7 @@ function Editar() {
               <b className="t-destaque">{exInfo(e.ex_chave, base.proprios).nome}</b>
               {e.series.map((x, si) => (
                 <div key={`${si}-${e.series.length}`} className="flex flex-col gap-2 border-t border-line pt-3">
-                  <div className="grid grid-cols-[24px_1fr_16px_1fr_44px] items-center gap-2">
+                  <div className="grid grid-cols-[24px_minmax(0,1fr)_16px_minmax(0,1fr)_44px] items-center gap-2">
                     <span className="t-rotulo text-mut">{si + 1}</span>
                     <input
                       inputMode="decimal"
@@ -203,7 +203,7 @@ function Editar() {
                         const n = lerNumero(ev.target.value);
                         mudarSerie(ei, si, "kg", Number.isFinite(n) ? Math.min(1000, Math.max(0, n)) : 0);
                       }}
-                      className="t-destaque tab-num min-h-11 rounded-ctl bg-s2 px-3"
+                      className="t-destaque tab-num min-h-11 w-full min-w-0 rounded-ctl bg-s2 px-3"
                     />
                     <span className="text-center text-mut">×</span>
                     <input
@@ -214,7 +214,7 @@ function Editar() {
                         const n = Math.round(lerNumero(ev.target.value));
                         mudarSerie(ei, si, "reps", Number.isFinite(n) ? Math.min(200, Math.max(0, n)) : 0);
                       }}
-                      className="t-destaque tab-num min-h-11 rounded-ctl bg-s2 px-3"
+                      className="t-destaque tab-num min-h-11 w-full min-w-0 rounded-ctl bg-s2 px-3"
                     />
                     <BotaoIcone
                       icone="x"

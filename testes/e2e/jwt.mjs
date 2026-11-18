@@ -20,4 +20,4 @@ export function sessao(uid, email, nome) {
     user: { id: uid, aud: "authenticated", role: "authenticated", email, user_metadata: { full_name: nome }, app_metadata: { provider: "google" } },
   };
 }
-if (process.argv[2]) console.log(JSON.stringify(sessao(process.argv[2], process.argv[3] ?? "pedro@teste.local", process.argv[4] ?? "Pedro Vargas")));
+if (process.argv[2]) console.log(JSON.stringify(sessao(process.argv[2], process.argv[3] ?? "pessoa@teste.local", process.argv[4] ?? "Pessoa Teste")));

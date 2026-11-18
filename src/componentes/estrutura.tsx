@@ -70,7 +70,7 @@ export function Abas() {
             key={a.href}
             href={a.href}
             aria-current={ativa(a.href) ? "page" : undefined}
-            className={cn("flex min-h-12 flex-col items-center gap-[3px] text-xs font-semibold", ativa(a.href) ? "text-ac-tx" : "text-mut")}
+            className={cn("flex min-h-[49px] flex-col items-center gap-[3px] text-[12px] leading-tight font-semibold", ativa(a.href) ? "text-ac-tx" : "text-mut")}
           >
             <Icone nome={a.icone} tamanho={24} traco={1.8} />
             {a.rotulo}
@@ -96,35 +96,46 @@ export function PaginaCheia({
   children,
   voltar,
   titulo,
+  tituloSecundario,
   acao,
   className,
 }: {
   children: React.ReactNode;
   voltar?: { rotulo?: string; href?: string; aoTocar?: () => void };
   titulo?: string;
+  /** A tela já tem um título grande (TituloTela); o do topo vira só rótulo, para não haver dois títulos principais. */
+  tituloSecundario?: boolean;
   acao?: React.ReactNode;
   className?: string;
 }) {
   return (
     <main className={cn("mx-auto flex min-h-dvh w-full max-w-[480px] flex-col gap-4 px-5 pt-seguro pb-seguro", className)}>
       {(voltar || titulo || acao) && (
-        <div className="grid min-h-11 grid-cols-[1fr_auto_1fr] items-center">
+        <div className="grid min-h-11 grid-cols-[minmax(0,1fr)_minmax(0,auto)_minmax(0,1fr)] items-center gap-2">
           {voltar ? (
             voltar.href ? (
-              <Link href={voltar.href} className="t-corpo flex min-h-11 items-center gap-1 justify-self-start text-mut">
-                <Icone nome="prev" tamanho={20} />
-                {voltar.rotulo ?? "Voltar"}
+              <Link href={voltar.href} className="t-corpo flex min-h-11 max-w-full min-w-0 items-center gap-1 justify-self-start text-mut">
+                <Icone nome="prev" tamanho={20} className="shrink-0" />
+                <span className="truncate">{voltar.rotulo ?? "Voltar"}</span>
               </Link>
             ) : (
-              <button type="button" onClick={voltar.aoTocar} className="t-corpo flex min-h-11 items-center gap-1 justify-self-start text-mut">
-                <Icone nome="prev" tamanho={20} />
-                {voltar.rotulo ?? "Voltar"}
+              <button type="button" onClick={voltar.aoTocar} className="t-corpo flex min-h-11 max-w-full min-w-0 items-center gap-1 justify-self-start text-mut">
+                <Icone nome="prev" tamanho={20} className="shrink-0" />
+                <span className="truncate">{voltar.rotulo ?? "Voltar"}</span>
               </button>
             )
           ) : (
             <span />
           )}
-          {titulo ? <span className="t-destaque text-center">{titulo}</span> : <span />}
+          {titulo ? (
+            tituloSecundario ? (
+              <span className="t-destaque text-center break-words">{titulo}</span>
+            ) : (
+              <h1 className="t-destaque text-center break-words">{titulo}</h1>
+            )
+          ) : (
+            <span />
+          )}
           <div className="justify-self-end">{acao}</div>
         </div>
       )}

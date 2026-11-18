@@ -26,16 +26,15 @@ export default function Fechar() {
   const [salvando, setSalvando] = useState(false);
   const [vazio, setVazio] = useState(false);
 
-  useEffect(() => {
-    if (!base || a) return;
-    if (!base.rascunho) {
-      router.replace("/");
-      return;
-    }
-    setA(base.rascunho);
+  // Copia o treino em andamento para o formulário uma vez; sem treino em andamento, volta para o início.
+  if (base?.rascunho && !a) {
     const ini = fechamentoInicial(base.rascunho);
+    setA(base.rascunho);
     setF(ini);
     setTempo(ini.tempo_total_s ? mmss(ini.tempo_total_s) : "");
+  }
+  useEffect(() => {
+    if (base && !base.rascunho && !a) router.replace("/");
   }, [base, a, router]);
 
   if (!base || !a || !f) return <Abertura texto="Abrindo…" />;

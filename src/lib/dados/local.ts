@@ -92,5 +92,18 @@ export async function fecharEApagarBanco(uid: string) {
   await Dexie.delete(`healthcore-${uid}`);
 }
 
+/**
+ * A sessão acabou sem a pessoa pedir (login revogado ou expirado de vez). Fecha a cópia do celular e, se nada ficou
+ * por subir, apaga. Com pendências ela fica guardada: ao entrar de novo com a mesma conta, sobe normalmente.
+ */
+export async function encerrarBanco() {
+  if (!atual) return;
+  const { uid, db } = atual;
+  const pendentes = await db.fila.count().catch(() => 1);
+  db.close();
+  atual = null;
+  if (!pendentes) await Dexie.delete(`healthcore-${uid}`);
+}
+
 export const PERFIL_VAZIO: Perfil = { nome: "", altura_cm: null, modelo: null, onboarding_concluido: false };
 export const CONFIG_VAZIA: Configuracoes = { regras: {}, som_descanso: true, deload_dispensado_ate: null, calibracao_dispensada_ate: null };

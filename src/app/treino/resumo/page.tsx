@@ -73,14 +73,14 @@ function Resumo() {
           <span className="t-rotulo font-semibold">{dataCurta(sessao.data).toLowerCase()}</span>
         </div>
         <h2 className="font-disp text-[2.25rem] leading-none font-extrabold uppercase">{sessao.nome}</h2>
-        <div className="flex items-center gap-5">
+        <div className="flex flex-wrap items-center gap-5">
           {!cond && (
             <div className="flex gap-1" aria-hidden="true">
               <Figura lado="frente" largura={44} cor={cor} base="#E2462B" />
               <Figura lado="costas" largura={44} cor={cor} base="#E2462B" />
             </div>
           )}
-          <dl className="grid flex-1 grid-cols-2 gap-x-4 gap-y-3">
+          <dl className="grid min-w-[min(100%,12rem)] flex-1 grid-cols-2 gap-x-4 gap-y-3">
             <div>
               <dt className="sr-only">Minutos</dt>
               <dd className="t-numero">{r.minutos}</dd>

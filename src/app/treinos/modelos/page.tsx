@@ -17,7 +17,7 @@ export default function Modelos() {
   const aviso = useAvisoCurto();
   if (conta.estado !== "dentro") return null;
   return (
-    <PaginaCheia voltar={{ href: "/treinos/" }} titulo="Planos prontos">
+    <PaginaCheia tituloSecundario voltar={{ href: "/treinos/" }} titulo="Planos prontos">
       <h1 className="t-tela">Planos</h1>
       <p className="t-corpo text-tx2">Usar um plano cria os treinos dele e troca a sua semana. Os treinos de hoje ficam guardados e o histórico continua.</p>
       <ListaModelos

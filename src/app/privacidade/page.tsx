@@ -2,7 +2,7 @@ import { PaginaCheia } from "@/componentes/estrutura";
 
 export default function Privacidade() {
   return (
-    <PaginaCheia voltar={{ href: "/entrar/", rotulo: "Voltar" }} titulo="Privacidade">
+    <PaginaCheia tituloSecundario voltar={{ href: "/entrar/", rotulo: "Voltar" }} titulo="Privacidade">
       <h1 className="t-tela">Seus dados</h1>
       <div className="t-corpo flex flex-col gap-4 text-tx2">
         <p>O HealthCore guarda o que você registra: treinos, séries, sono, medidas e as regras de carga. Nada mais.</p>

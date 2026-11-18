@@ -122,6 +122,8 @@
   }
 
   body {
+    /* Palavra longa que não cabe nem sozinha na linha (letra grande) quebra em vez de sair da tela. */
+    overflow-wrap: break-word;
     font-family: var(--font-body);
     font-size: 1rem;
     line-height: 1.45;
@@ -130,6 +132,13 @@
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
+  }
+
+  /* Campos e listas de opções têm largura mínima própria; sem isto empurram a linha para fora da tela. */
+  input,
+  select,
+  textarea {
+    min-width: 0;
   }
 
   button,
@@ -144,6 +153,12 @@
     outline: 2px solid var(--ac-tx);
     outline-offset: 2px;
   }
+}
+
+/* Duas colunas de cartões que viram uma quando o texto não cabe (letra grande ou tela estreita). */
+@utility grade-cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
 }
 
 /* Estilos de texto do DESIGN.md */

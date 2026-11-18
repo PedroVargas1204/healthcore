@@ -1,7 +1,7 @@
 import asyncio, json, subprocess, sys
 from playwright.async_api import async_playwright
 UID='aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa'
-SESSAO=subprocess.check_output(['node','jwt.mjs',UID,'pedro@teste.local','Pedro Vargas']).decode().strip()
+SESSAO=subprocess.check_output(['node','jwt.mjs',UID,'pessoa@teste.local','Pessoa Teste']).decode().strip()
 BASE='http://localhost:3020'
 async def rota(route):
     u=route.request.url.replace('https://hiroraxpqkylghzkvcxp.supabase.co', BASE)

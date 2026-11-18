@@ -5,7 +5,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
-import { abrirBanco, fecharEApagarBanco } from "./local";
+import { abrirBanco, encerrarBanco, fecharEApagarBanco } from "./local";
 import { agendarSincronia, sincronizar } from "./sync";
 
 export type Conta =
@@ -46,6 +46,7 @@ export function ProvedorConta({ children }: { children: React.ReactNode }) {
     });
     const { data: ouvinte } = supa.auth.onAuthStateChange((evento, sessao) => {
       if (evento === "INITIAL_SESSION") return;
+      if (evento === "SIGNED_OUT") void encerrarBanco();
       const c = deSessao(sessao);
       if (c.estado === "dentro") abrirBanco(c.uid);
       setConta((antes) => (antes.estado === c.estado && antes.estado === "dentro" && c.estado === "dentro" && antes.uid === c.uid ? antes : c));

@@ -36,10 +36,48 @@ export function Abertura({ texto = "Carregando seus treinos…" }: { texto?: str
   );
 }
 
+/**
+ * Guarda o app no celular e cuida das atualizações. Uma versão nova baixa sozinha e fica esperando; ela só entra
+ * quando o app acaba de abrir ou quando vai para segundo plano, e aí a página recarrega escondida. Assim nunca
+ * recarrega no meio de um treino ou de um formulário.
+ */
 function RegistrarServiceWorker() {
   useEffect(() => {
     if (process.env.NODE_ENV !== "production" || !("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
+    const sw = navigator.serviceWorker;
+    const abriuEm = Date.now();
+    let reg: ServiceWorkerRegistration | undefined;
+    let recarregar = false;
+    // Logo depois de abrir não há nada digitado; fora isso, espera o app sair da tela.
+    const momentoSeguro = () => document.visibilityState === "hidden" || Date.now() - abriuEm < 5000;
+    const ativar = () => {
+      if (!reg?.waiting || !sw.controller || !momentoSeguro()) return;
+      recarregar = true;
+      reg.waiting.postMessage("atualizar");
+    };
+    const trocou = () => {
+      if (recarregar) window.location.reload();
+    };
+    const aoMudarVisibilidade = () => {
+      if (document.visibilityState === "hidden") ativar();
+      else void reg?.update().catch(() => {});
+    };
+    sw.addEventListener("controllerchange", trocou);
+    document.addEventListener("visibilitychange", aoMudarVisibilidade);
+    sw.register("/sw.js", { scope: "/" })
+      .then((r) => {
+        reg = r;
+        ativar();
+        r.addEventListener("updatefound", () => {
+          const novo = r.installing;
+          novo?.addEventListener("statechange", () => novo.state === "installed" && ativar());
+        });
+      })
+      .catch(() => {});
+    return () => {
+      sw.removeEventListener("controllerchange", trocou);
+      document.removeEventListener("visibilitychange", aoMudarVisibilidade);
+    };
   }, []);
   return null;
 }

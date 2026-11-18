@@ -46,10 +46,15 @@ export const viewport: Viewport = {
   ],
 };
 
+const LIMITE_LETRA = `(function(){var h=document.documentElement;function a(){h.style.fontSize="";var f=parseFloat(getComputedStyle(h).fontSize);if(f>33)h.style.fontSize="33px"}a();document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")a()})})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${disp.variable} ${body.variable}`}>
       <body>
+        {/* Letra do iPhone: acompanha o tamanho escolhido até o segundo maior de acessibilidade (33 px, o dobro do
+            padrão); acima disso as telas não cabem e o app fica nesse limite. Roda antes de desenhar a tela. */}
+        <script id="limite-letra" dangerouslySetInnerHTML={{ __html: LIMITE_LETRA }} />
         <Provedores>{children}</Provedores>
       </body>
     </html>

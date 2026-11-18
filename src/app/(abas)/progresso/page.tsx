@@ -170,12 +170,12 @@ function ConteudoProgresso({ base }: { base: Base }) {
         <h2 className="t-h1">Ombros largos, cintura fina</h2>
         {ultR ? (
           <>
-            <div className="flex items-end justify-between gap-3">
-              <div className="flex flex-col">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="flex min-w-0 grow basis-28 flex-col">
                 <span className="font-disp tab-num text-[3.5rem] leading-none font-extrabold">{fmt(ultR.v, 2)}</span>
                 <span className="t-rotulo text-tx2">ombro dividido pela cintura</span>
               </div>
-              <div className="t-rotulo flex flex-col items-end text-right text-tx2">
+              <div className="t-rotulo ml-auto flex shrink-0 flex-col items-end text-right text-tx2">
                 {varR !== null && (
                   <span>
                     <b className="text-tx">{`${varR >= 0 ? "+" : "−"}${fmt(Math.abs(varR), 2)}`}</b> em 12 semanas
@@ -256,7 +256,7 @@ function ConteudoProgresso({ base }: { base: Base }) {
           <h2 className="t-h1">Semana em números</h2>
           <p className="t-rotulo text-mut">{rotSemana}, comparado com a semana anterior</p>
         </div>
-        <dl className="grid grid-cols-2 gap-2">
+        <dl className="grade-cartoes gap-2">
           {(
             [
               ["Treinos", `${diasFeitos} de ${planejados}`, diasFeitos === diasAntes ? <span className="t-legenda text-mut">igual</span> : <Delta v={diasFeitos - diasAntes} casas={0} />],
@@ -268,7 +268,7 @@ function ConteudoProgresso({ base }: { base: Base }) {
             <div key={r} className="flex flex-col gap-1 rounded-card bg-s1 p-4">
               <dt className="t-rotulo text-tx2">{r}</dt>
               <dd className="t-numero">{v}</dd>
-              {d}
+              {d && <dd>{d}</dd>}
             </div>
           ))}
         </dl>
@@ -280,7 +280,7 @@ function ConteudoProgresso({ base }: { base: Base }) {
             <h2 className="t-h1">Carga nos principais</h2>
             <p className="t-rotulo text-mut">1RM estimado com o RIR, últimas 12 semanas</p>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grade-cartoes gap-2">
             {carga.map(({ id, pts }) => {
               const info = exInfo(id, base.proprios);
               const ult = pts[pts.length - 1]!.y;
@@ -324,9 +324,9 @@ function ConteudoProgresso({ base }: { base: Base }) {
             const d = delta(lista);
             return (
               <div key={nome} className="flex flex-col gap-2 border-b border-line pb-3 last:border-0 last:pb-0">
-                <div className="flex items-baseline justify-between gap-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                   <span className="t-destaque">{nome}</span>
-                  <span className="flex items-baseline gap-2">
+                  <span className="flex flex-wrap items-baseline gap-x-2">
                     <span className="t-h1 tab-num">{ult ? `${fmt(ult.v)} ${un}` : "—"}</span>
                     {d !== null && <span className="t-legenda text-mut">{`${d >= 0 ? "+" : "−"}${fmt(Math.abs(d))} em 12 semanas`}</span>}
                   </span>

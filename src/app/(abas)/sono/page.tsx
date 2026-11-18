@@ -39,7 +39,7 @@ function ConteudoSono({ base }: { base: Base }) {
   const catorze = Array.from({ length: 14 }, (_, i) => somarDias(hoje, i - 13));
   const lancadas = catorze.filter((k) => porData.has(k));
   const baixas = catorze.filter((k) => (porData.get(k)?.horas ?? 99) < r.sonoAmareloNoite!);
-  const cal = useMemo(() => calibrarSono({ noites: base.noites, sessoes: base.sessoes, config: base.config, hoje }), [base, hoje]);
+  const cal = calibrarSono({ noites: base.noites, sessoes: base.sessoes, config: base.config, hoje });
   const ultimaCalib = base.calibracoes[base.calibracoes.length - 1];
   const lista = todas ? base.noites : base.noites.slice(0, 5);
   const maxH = Math.max(9, ...catorze.map((k) => porData.get(k)?.horas ?? 0));
@@ -47,7 +47,7 @@ function ConteudoSono({ base }: { base: Base }) {
   return (
     <>
       <TituloTela>Sono</TituloTela>
-      <Cartao className="flex-row items-center justify-between">
+      <Cartao className="flex-row flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col">
           <span className="t-rotulo text-mut">
             Noite de ontem{ontem?.qualidade ? `, qualidade ${ontem.qualidade}` : ""}

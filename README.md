@@ -36,4 +36,12 @@ npm run typecheck
 npm run lint
 ```
 
-Os testes de ponta a ponta (`testes/e2e`) usam um Postgres e um PostgREST locais com as migrações aplicadas; `servidor.mjs` serve `out/` e simula queda de rede.
+Os testes de ponta a ponta (`testes/e2e`) usam um Postgres e um PostgREST locais com as migrações aplicadas; `servidor.mjs` serve `out/` e simula queda de rede. Com o backup importado:
+
+```
+python3 testes/e2e/suite.py      # fluxos principais, sem rede, dois aparelhos, atualização do app
+python3 testes/e2e/a11y.py       # acessibilidade (axe) em todas as telas, tema claro e escuro
+python3 testes/e2e/estouro.py    # nada sai da tela em 320 e 375 pontos e com letra de 135% a 312%
+```
+
+Testes do banco: `supabase/tests/banco.sql` (depois `limpeza.sql`).

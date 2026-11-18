@@ -34,7 +34,7 @@ function ItemTreino({ t, base }: { t: Treino; base: Base }) {
         <MiniMapa t={t} base={base} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="t-destaque">{t.nome}</span>
+        <span className="t-destaque break-words">{t.nome}</span>
         <span className="t-legenda text-mut">{descricaoTreino(t, base.regras)}</span>
       </span>
       <Icone nome="next" tamanho={18} className="text-mut" />
@@ -65,11 +65,16 @@ function ConteudoTreinos({ base }: { base: Base }) {
             const t = id ? base.treinoPorId.get(id) : undefined;
             return (
               <li key={i} className="border-b border-line last:border-0">
-                <button type="button" onClick={() => setDia(i)} className="flex min-h-14 w-full items-center gap-3 px-4 text-left" aria-label={`${DIAS_L[i]}: ${t ? t.nome : "descanso"}. Trocar`}>
-                  <span className="t-rotulo w-10 text-mut">{DIAS_AB[i]}</span>
-                  <span className={cn("t-destaque flex-1", !t && "font-medium text-mut")}>{t ? t.nome : "Descanso"}</span>
-                  {t?.tipo === "cond" && <span className="t-legenda rounded-full bg-s2 px-2 py-1">Condicionamento</span>}
-                  <Icone nome="next" tamanho={18} className="text-mut" />
+                <button type="button" onClick={() => setDia(i)} className="flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left" aria-label={`${DIAS_L[i]}: ${t ? t.nome : "descanso"}. Trocar`}>
+                  {/* Com letra grande o nome desce para baixo do dia, e a etiqueta para baixo do nome, em vez de apertar. */}
+                  <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="t-rotulo w-10 shrink-0 text-mut">{DIAS_AB[i]}</span>
+                    <span className="flex min-w-0 grow basis-36 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <span className={cn("t-destaque min-w-0", !t && "font-medium text-mut")}>{t ? t.nome : "Descanso"}</span>
+                      {t?.tipo === "cond" && <span className="t-legenda max-w-full truncate rounded-full bg-s2 px-2 py-1">Condicionamento</span>}
+                    </span>
+                  </span>
+                  <Icone nome="next" tamanho={18} className="shrink-0 text-mut" />
                 </button>
               </li>
             );
@@ -96,7 +101,7 @@ function ConteudoTreinos({ base }: { base: Base }) {
           </>
         )}
         {!base.treinos.length && <Aviso tipo="info">Nenhum treino ainda. Crie um ou use um plano pronto.</Aviso>}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grade-cartoes gap-2">
           <Link href="/treinos/editar/?novo=forca" className="toque t-destaque flex min-h-12 items-center justify-center gap-2 rounded-ctl bg-s2 px-3 text-center">
             <Icone nome="mais" tamanho={18} /> Musculação
           </Link>

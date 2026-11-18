@@ -83,14 +83,19 @@ async function umaRodada() {
     return;
   }
   const supa = supabase();
+  // A sessão pode trocar no meio da rodada (sair e entrar com outra conta). Cada etapa confere que ainda é a mesma
+  // pessoa, para nada de uma conta subir com o login da outra nem descer para o banco errado.
+  const mesmaConta = async () => uidAtual() === uid && (await supa.auth.getSession()).data.session?.user.id === uid;
   mudar({ fase: "sincronizando" });
   try {
+    if (!(await mesmaConta())) return;
     const ok = await enviar(db, supa, uid);
     if (!ok) {
       mudar({ fase: "offline", pendentes: await db.fila.count() });
       tentarDepois();
       return;
     }
+    if (!(await mesmaConta())) return;
     await puxar(db, supa);
     espera = 0;
     const fila = await db.fila.toArray();
@@ -347,6 +352,9 @@ function paraLocal(tabela: TabelaRaiz, l: Linha): unknown {
   return r as ExercicioProprio;
 }
 
+/** Tabelas do celular que uma remoção vinda da nuvem pode apagar. Outro nome é ignorado. */
+const TABELAS_REMOVIVEIS = ["treinos", "sessoes", "noites", "medidas", "deloads", "calibracoes", "exercicios_proprios"] as const;
+
 async function puxarRemocoes(db: BancoLocal, supa: Supa) {
   const m = await db.meta.get("cursor:remocoes");
   let desde = typeof m?.valor === "number" ? m.valor : 0;
@@ -357,8 +365,9 @@ async function puxarRemocoes(db: BancoLocal, supa: Supa) {
     if (!linhas.length) break;
     const pend = await db.fila.toCollection().primaryKeys();
     const pendSet = new Set(pend);
+    const tabelas = new Set<string>(TABELAS_REMOVIVEIS);
     for (const l of linhas) {
-      if (pendSet.has(`${l.tabela}:${l.registro_id}`)) continue;
+      if (!tabelas.has(l.tabela) || pendSet.has(`${l.tabela}:${l.registro_id}`)) continue;
       await db.table(l.tabela).delete(l.registro_id);
     }
     desde = linhas[linhas.length - 1]!.id;
